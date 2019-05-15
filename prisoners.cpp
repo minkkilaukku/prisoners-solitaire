@@ -34,7 +34,6 @@ vector<double> simu(int simuN)
     int toTable = 13;
     int k = 3;
 
-    //TODO
     vector<int> deck;
     for (int i=0; i<n; i++) deck.push_back(i%vals);
     vector<int> counts;
