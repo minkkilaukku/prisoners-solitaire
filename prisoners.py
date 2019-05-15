@@ -1,5 +1,5 @@
-import random, itertools, fractions
-
+import random, itertools
+from fractions import Fraction
 
 def binCoeff(n, k):
     if k < 0 or k > n: return 0
@@ -122,6 +122,35 @@ def calcPickHasAtLeastOneOccurs(t, pickN, suits, vals):
 
 
 
+
+
+
+#TODO still with second part brute
+#Calculate the probability of winning prisoner's solitaire
+#deck = {suits}x{vals}
+#handLen: how many cards are placed on board in phase 1
+#pickN: how many cards picked from the remaining deck in phase 2
+def calculateProb(suits, vals, handLen, pickN):
+    ts = getPartitions(handLen, min(handLen, vals), suits)
+    n = suits*vals
+    b1 = binCoeff(n, handLen)
+    b2 = binCoeff(n-handLen, pickN)
+    bTot = b1*b2
+
+    aTot = 0
+    for t in ts:
+        a1 = calcTypeOccurs(t, suits, vals)
+        a2 = bruteThePick(t, pickN, suits, vals)
+        aTot += a1*a2
+
+    return Fraction(aTot, bTot)
+
+
+
+
+
+
+
 #39 possible types
 #print getPartitions(13, 13, 4)
 
@@ -139,25 +168,38 @@ def calcPickHasAtLeastOneOccurs(t, pickN, suits, vals):
 
 
 
-#testing picking from the remains occurance calculation
+###testing picking from the remains occurance calculation
+###TODO
+##suits = 3
+##vals = 5
+##handLen = 5
+##pickN = 5
+##ps = getPartitions(handLen, handLen, suits)
+##brutes = [bruteThePick(t, pickN, suits, vals) for t in ps]
+##calcs = [calcPickHasAtLeastOneOccurs(t, pickN, suits, vals) for t in ps]
+##print ("suits  = %i, vals = %i, handLen = %i, pickN = %i"
+##       %(suits, vals, handLen, pickN) )
+##print "How many ways to pick the remaining such that have at least 1 of each"
+##print "type \t brute \t calculated"
+##for i in xrange(len(ps)):
+##    print ( str(ps[i]) +
+##           "\t" + str(brutes[i]) +
+##           "\t" + str(calcs[i]) )
+
+
+
 suits = 3
-vals = 5
+vals = 4
 handLen = 5
-pickN = 5
-ps = getPartitions(handLen, handLen, suits)
-brutes = [bruteThePick(t, pickN, suits, vals) for t in ps]
-calcs = [calcPickHasAtLeastOneOccurs(t, pickN, suits, vals) for t in ps]
-print ("suits  = %i, vals = %i, handLen = %i, pickN = %i"
-       %(suits, vals, handLen, pickN) )
-print "How many ways to pick the remaining such that have at least 1 of each"
-print "type \t brute \t calculated"
-for i in xrange(len(ps)):
-    print ( str(ps[i]) +
-           "\t" + str(brutes[i]) +
-           "\t" + str(calcs[i]) )
+pickN = 3
+p = calculateProb(suits, vals, handLen, pickN)
+simuPs = simulate(suits, vals, handLen, pickN, 100000)
 
-
-
+print "suits  = %i, vals = %i, handLen = %i, pickN = %i" %(suits, vals, handLen, pickN)
+print "calculated prob:"
+print str(p)+" = "+str(float(p))
+print "simulated prob:"
+print simuPs[0]
 
 
 
