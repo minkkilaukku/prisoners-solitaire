@@ -22,3 +22,20 @@ and we get wrong
 they should be
     [ 1/3, 11/28, 9/28 ]
 which have been calculated by brute force and give the correct winning probability 142/385, which is also checked by brute force.
+
+
+
+#EDIT
+Well, of course, different combinations of the multiset have different probability to come! Now, how to include these probabilities in the formula. Maybe we should consider the permutations (and use EGF's)?
+
+For example all combs resulting from the type t = [3] are
+
+[[1, 2, 0], [1, 1, 0], [1, 2, 0], [1, 1, 0], [1, 2, 0], [1, 0, 1], [1, 0, 2], [2, 1, 0], [2, 2, 0], [2, 1, 0], [2, 2, 0], [2, 0, 1], [2, 0, 2], [1, 2, 0], [1, 1, 0], [1, 2, 0], [1, 0, 1], [1, 0, 2], [2, 1, 0], [2, 2, 0], [2, 0, 1], [2, 0, 2], [1, 2, 0], [1, 0, 1], [1, 0, 2], [2, 0, 1], [2, 0, 2], [0, 1, 2]]
+
+but when regarded as aifaäld'ada there are only 3 different ones:
+
+['0,1,1', '0,1,2', '0,2,2']
+
+
+
+
