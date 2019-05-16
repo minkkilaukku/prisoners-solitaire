@@ -1,5 +1,5 @@
 # prisoners-solitaire
-All sorts of simulations and calculations of the card game called Prisoners Solitaire
+All sorts of simulations and calculations of the card game called Prisoner's Solitaire
 
 Try it out at https://prisoners-solitaire--minkkilaukku2.repl.co/
 
