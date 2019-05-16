@@ -19,6 +19,45 @@ def factorial(n):
     for i in xrange(1, n+1): ret *= i
     return ret
 
+def nextMultipermu(a):
+    n = len(a)
+    m = 0
+    #Find the next different value
+    for i in xrange(1, n):
+        if (a[i-1] < a[i]):
+            m = i
+
+    if (m == 0): return a, False
+
+    #sort a[m+1:n]
+    if (m+1 < n):
+        for i in xrange (m, n):
+            for j in xrange (i+1, n):
+                if (a[j] < a[i]):
+                    t = a[i]
+                    a[i] = a[j]
+                    a[j] = t
+    
+    i = 1
+    while (a[m+i-1] <= a[m-1]): i = i+1
+
+    temp = a[m-1]
+    a[m-1] = a[m+i-1]
+    a[m+i-1] = temp
+
+    return a, True
+
+#Generate all permutations of the array, ignoring duplicates
+#(two permutations are duplicates if they have the same elements in same order)
+def generMultipermus(arr):
+    a = sorted(arr[:])
+    yield a[:]
+    hasNext = True
+    while hasNext:
+        p, hasNext = nextMultipermu(a)
+        if not hasNext: break
+        yield p[:]
+
 
 def simulate(suits, vals, toTable, pickN, simuN):
     n = suits*vals
@@ -127,7 +166,7 @@ def bruteThePick(t, pickN, suits, vals):
 #deck picking type is a vector (a1, a2,..., ar) telling how many to
 #pick of each number in the type t (notice: these can be assumed to be
 #the numbers 0..r
-def getGoodTypes(t, suits, vals, pickN):
+def getGoodTypesOld(t, suits, vals, pickN):
     maxes = [suits-x for x in t]
     ret = []
 
@@ -139,6 +178,27 @@ def getGoodTypes(t, suits, vals, pickN):
     for p in itertools.product( *[range(1, m+1) for m in maxes] ):
         if isGood(p): ret.append(p)
     return ret
+
+
+
+#how to get them efficiently
+#now permutes the ones made from partitions of tLen..pickN,
+#but that will also permute the duplicates and do a lot of needless work
+#since duplicate vectors will be ignored in the end
+#NOW using multipermu generating
+def getGoodTypes(t, suits, vals, pickN):
+    maxes = [suits-x for x in t]
+    ret = []
+    tLen = len(t)
+    allPs = []
+    for i in xrange(tLen, pickN+1):
+        ps = [p for p in getPartitions(i, tLen, suits) if len(p)==tLen]
+        allPs += ps
+    ret = set()
+    for p in allPs:
+        for permP in generMultipermus(p): #itertools.permutations(p):
+            ret.add(tuple(permP))
+    return list(ret)
 
 def calcPickOfType(njs, t, pickN, suits, vals):
     restN = sum(njs[len(t):])
@@ -158,10 +218,15 @@ def calcPickOfType(njs, t, pickN, suits, vals):
 #The original deck is {suits}x{vals}
 def calcPickHasAtLeastOneOccurs(t, pickN, suits, vals):
     goodDeckTypes = getGoodTypes(t, suits, vals, pickN)
+    #print "there are "+str(len(goodDeckTypes))+" good types"
+    gPicks = []
     njs = [suits-x for x in t] + [suits]*(vals-len(t))
     ret = 0
     for t2 in goodDeckTypes:
-        ret += calcPickOfType(njs, t2, pickN, suits, vals)
+        gP = calcPickOfType(njs, t2, pickN, suits, vals)
+        ret += gP
+        gPicks.append(gP)
+    #print zip(goodDeckTypes, gPicks)
     return ret
 
 
@@ -215,5 +280,13 @@ print simuP[0]
 ########################################################
 # without memorizing binocoeffs: took 110.651000023
 # with memo: took 72.236000061
+
+#Major optimization of limiting the sum of a good type to be at most pickN:
+#took 1.31300020218
+
+
+
+
+
 
 
