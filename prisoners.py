@@ -50,6 +50,8 @@ def getPartitions(n, maxPartsN, maxSize):
         ret += [[x] + sP for sP in getPartitions(n-x, maxPartsN-1, x)]
     return ret
 
+def getAllPossibleTypes(boardN, suits, vals):
+    return getPartitions(boardN, min(boardN, vals), suits)
 
 
 #list of the pile sizes of the hand when same-valued are piled
@@ -108,7 +110,40 @@ def bruteThePick(t, pickN, suits, vals):
     for comb in itertools.combinations(deck, pickN):
         hand = [x%vals for x in comb]
         if hasAtLeastOneOfEach(hand): ret+=1
+
     return ret
+
+
+
+
+
+#given the board type t, get a list of all deck picking types that will
+#clear it and are possible
+#deck picking type is a vector (a1, a2,..., ar) telling how many to
+#pick of each number in the type t (notice: these can be assumed to be
+#the numbers 0..r
+def getGoodTypes(t, suits, vals, pickN):
+    maxes = [suits-x for x in t]
+    ret = []
+
+    def isGood(p):
+        if len(p)<len(t): return False
+        for i,x in enumerate(p):
+            if x==0 or x>maxes[i]: return False
+        return True
+    for p in itertools.product( *[range(1, m+1) for m in maxes] ):
+        if isGood(p): ret.append(p)
+    return ret
+
+def calcPickOfType(njs, t, pickN, suits, vals):
+    restN = sum(njs[len(t):])
+    restA = pickN-sum(t)
+
+    ret = binCoeff(restN, restA)
+    for i in xrange(len(t)):
+        ret *= binCoeff(njs[i], t[i])
+    return ret
+
 
 
 #When cards are removed from the deck so that they form the pile type t,
@@ -117,7 +152,12 @@ def bruteThePick(t, pickN, suits, vals):
 #ones
 #The original deck is {suits}x{vals}
 def calcPickHasAtLeastOneOccurs(t, pickN, suits, vals):
-    return 1 #TODO
+    goodDeckTypes = getGoodTypes(t, suits, vals, pickN)
+    njs = [suits-x for x in t] + [suits]*(vals-len(t))
+    ret = 0
+    for t2 in goodDeckTypes:
+        ret += calcPickOfType(njs, t2, pickN, suits, vals)
+    return ret
 
 
 
@@ -140,15 +180,31 @@ def calculateProb(suits, vals, handLen, pickN):
     aTot = 0
     for t in ts:
         a1 = calcTypeOccurs(t, suits, vals)
-        a2 = bruteThePick(t, pickN, suits, vals)
+        a2 = calcPickHasAtLeastOneOccurs(t, pickN, suits, vals)
         aTot += a1*a2
 
     return Fraction(aTot, bTot)
 
 
+suits = 4
+vals = 11 #13 takes quite long
+boardN = vals
+pickN = vals
 
+p = calculateProb(suits, vals, boardN, pickN)
 
+print "{} = {}".format(str(p), float(p))
 
+print "simu"
+simuP = simulate(suits, vals, boardN, pickN, 40000)
+print simuP[0]
+
+####### The Result #####################################
+#
+#   calculateProb(4, 13, 13, 13) =
+#   964444044208/262190765217675 = 0.00367840584853
+#
+########################################################
 
 
 #39 possible types
@@ -188,18 +244,21 @@ def calculateProb(suits, vals, handLen, pickN):
 
 
 
-suits = 3
-vals = 4
-handLen = 5
-pickN = 3
-p = calculateProb(suits, vals, handLen, pickN)
-simuPs = simulate(suits, vals, handLen, pickN, 100000)
+##suits = 4
+##vals = 6
+##handLen = 3
+##pickN = 3
+##p = calculateProb(suits, vals, handLen, pickN)
+##simuPs = simulate(suits, vals, handLen, pickN, 10000)
+##
+##print "suits  = %i, vals = %i, handLen = %i, pickN = %i" %(suits, vals, handLen, pickN)
+##print "calculated prob:"
+##print str(p)+" = "+str(float(p))
+##print "simulated prob:"
+##print simuPs[0]
 
-print "suits  = %i, vals = %i, handLen = %i, pickN = %i" %(suits, vals, handLen, pickN)
-print "calculated prob:"
-print str(p)+" = "+str(float(p))
-print "simulated prob:"
-print simuPs[0]
+#bruteThePick(t, pickN, suits, vals)
+#print bruteThePick((3,2,1), 3, 4, 6)
 
 
 
