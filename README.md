@@ -4,12 +4,14 @@ All sorts of simulations and calculations of the card game called Prisoners Soli
 Try it out at https://prisoners-solitaire--minkkilaukku2.repl.co/
 
 
-#Edit
+**Edit**
+
 Now it gives the winning probability for 4*13 cards: 964444044208/262190765217675 = 0.00367840584853. But it takes a couple of minutes. The second, clearing, probabilities are calculated like this: for a type t, consider all the allowed and >=1 pickings from the deck for the numbers 0..|t|, for that ways of picking is a product of binomial coefficients. Add those up to get the wanted ways of picking.
 
 
 
-#Old way ponderings
+**Old way ponderings**
+
 
 The "combinations of multiset" -way doesn't work.
 For example for parameters
