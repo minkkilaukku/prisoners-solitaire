@@ -165,7 +165,7 @@ def calcPickHasAtLeastOneOccurs(t, pickN, suits, vals):
 
 
 
-#TODO still with second part brute
+#TODO second part still slow, since goes through a large list of possible 'picking types'
 #Calculate the probability of winning prisoner's solitaire
 #deck = {suits}x{vals}
 #handLen: how many cards are placed on board in phase 1
