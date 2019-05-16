@@ -1,12 +1,17 @@
-import random, itertools
+import random, itertools, time
 from fractions import Fraction
 
+
+binoMemo = {}
 def binCoeff(n, k):
+    global binoMemo
+    if (n, k) in binoMemo: return binoMemo[(n,k)]
     if k < 0 or k > n: return 0
     if k == 0 or k == n: return 1
     ret = 1
     for i in range(min(k, n-k)):
         ret = ret*(n-i)//(i+1)
+    binoMemo[(n,k)] = ret
     return ret
 
 def factorial(n):
@@ -165,7 +170,7 @@ def calcPickHasAtLeastOneOccurs(t, pickN, suits, vals):
 
 
 
-#TODO second part still slow, since goes through a large list of possible 'picking types'
+#TODO still with second part brute
 #Calculate the probability of winning prisoner's solitaire
 #deck = {suits}x{vals}
 #handLen: how many cards are placed on board in phase 1
@@ -187,11 +192,14 @@ def calculateProb(suits, vals, handLen, pickN):
 
 
 suits = 4
-vals = 11 #13 takes quite long
+vals = 13 #13 takes quite long
 boardN = vals
 pickN = vals
 
+startTime = time.time()
 p = calculateProb(suits, vals, boardN, pickN)
+tookTime = time.time()-startTime
+print "took "+str(tookTime)
 
 print "{} = {}".format(str(p), float(p))
 
@@ -205,81 +213,7 @@ print simuP[0]
 #   964444044208/262190765217675 = 0.00367840584853
 #
 ########################################################
-
-
-#39 possible types
-#print getPartitions(13, 13, 4)
-
-
-#testing type occurance calculation
-##suits = 3
-##vals = 5
-##handLen = 5
-##a = countTypes(suits, vals, handLen)
-##print "suits  = %i, vals = %i, handLen = %i" %(suits, vals, handLen)
-##print "How the combinations distribute among types"
-##print "type \t brute \t calculated"
-##for k in sorted(a.keys(), reverse=True):
-##    print str(k) + "\t" + str(a[k]) + "\t" + str(calcTypeOccurs(k, suits, vals))
-
-
-
-###testing picking from the remains occurance calculation
-###TODO
-##suits = 3
-##vals = 5
-##handLen = 5
-##pickN = 5
-##ps = getPartitions(handLen, handLen, suits)
-##brutes = [bruteThePick(t, pickN, suits, vals) for t in ps]
-##calcs = [calcPickHasAtLeastOneOccurs(t, pickN, suits, vals) for t in ps]
-##print ("suits  = %i, vals = %i, handLen = %i, pickN = %i"
-##       %(suits, vals, handLen, pickN) )
-##print "How many ways to pick the remaining such that have at least 1 of each"
-##print "type \t brute \t calculated"
-##for i in xrange(len(ps)):
-##    print ( str(ps[i]) +
-##           "\t" + str(brutes[i]) +
-##           "\t" + str(calcs[i]) )
-
-
-
-##suits = 4
-##vals = 6
-##handLen = 3
-##pickN = 3
-##p = calculateProb(suits, vals, handLen, pickN)
-##simuPs = simulate(suits, vals, handLen, pickN, 10000)
-##
-##print "suits  = %i, vals = %i, handLen = %i, pickN = %i" %(suits, vals, handLen, pickN)
-##print "calculated prob:"
-##print str(p)+" = "+str(float(p))
-##print "simulated prob:"
-##print simuPs[0]
-
-#bruteThePick(t, pickN, suits, vals)
-#print bruteThePick((3,2,1), 3, 4, 6)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# without memorizing binocoeffs: took 110.651000023
+# with memo: took 72.236000061
 
 
