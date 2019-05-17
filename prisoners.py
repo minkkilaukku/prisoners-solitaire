@@ -190,6 +190,12 @@ def getGoodTypes(t, suits, vals, pickN):
     maxes = [suits-x for x in t]
     ret = []
     tLen = len(t)
+
+    def isGood(p):
+        for i,x in enumerate(p):
+            if x==0 or x>maxes[i]: return False
+        return True
+    
     allPs = []
     for i in xrange(tLen, pickN+1):
         ps = [p for p in getPartitions(i, tLen, suits) if len(p)==tLen]
@@ -197,7 +203,7 @@ def getGoodTypes(t, suits, vals, pickN):
     ret = set()
     for p in allPs:
         for permP in generMultipermus(p): #itertools.permutations(p):
-            ret.add(tuple(permP))
+            if isGood(permP): ret.add(tuple(permP))
     return list(ret)
 
 def calcPickOfType(njs, t, pickN, suits, vals):
@@ -218,7 +224,7 @@ def calcPickOfType(njs, t, pickN, suits, vals):
 #The original deck is {suits}x{vals}
 def calcPickHasAtLeastOneOccurs(t, pickN, suits, vals):
     goodDeckTypes = getGoodTypes(t, suits, vals, pickN)
-    #print "there are "+str(len(goodDeckTypes))+" good types"
+    #print "there are "+str(len(goodDeckTypes))+" good types for "+str(t)
     gPicks = []
     njs = [suits-x for x in t] + [suits]*(vals-len(t))
     ret = 0
@@ -231,8 +237,11 @@ def calcPickHasAtLeastOneOccurs(t, pickN, suits, vals):
 
 
 
-
-
+#is the type t maxed out (=suits) in some value
+def outOfSome(t, suits):
+    for x in t:
+        if x>=suits: return True
+    return False
 
 
 #TODO still with second part brute
@@ -240,15 +249,15 @@ def calcPickHasAtLeastOneOccurs(t, pickN, suits, vals):
 #deck = {suits}x{vals}
 #handLen: how many cards are placed on board in phase 1
 #pickN: how many cards picked from the remaining deck in phase 2
-def calculateProb(suits, vals, handLen, pickN):
-    ts = getPartitions(handLen, min(handLen, vals), suits)
+def calculateProb(suits, vals, boardN, pickN):
+    ts = getPartitions(boardN, min(boardN, vals), suits)
     n = suits*vals
-    b1 = binCoeff(n, handLen)
-    b2 = binCoeff(n-handLen, pickN)
+    b1 = binCoeff(n, boardN)
+    b2 = binCoeff(n-boardN, pickN)
     bTot = b1*b2
 
     aTot = 0
-    for t in ts:
+    for t in [t1 for t1 in ts if not outOfSome(t1, suits)]:
         a1 = calcTypeOccurs(t, suits, vals)
         a2 = calcPickHasAtLeastOneOccurs(t, pickN, suits, vals)
         aTot += a1*a2
@@ -257,9 +266,9 @@ def calculateProb(suits, vals, handLen, pickN):
 
 
 suits = 4
-vals = 13 #13 takes quite long
+vals = 13
 boardN = vals
-pickN = vals
+pickN = boardN
 
 startTime = time.time()
 p = calculateProb(suits, vals, boardN, pickN)
@@ -268,9 +277,15 @@ print "took "+str(tookTime)
 
 print "{} = {}".format(str(p), float(p))
 
-print "simu"
-simuP = simulate(suits, vals, boardN, pickN, 40000)
-print simuP[0]
+#ts = getPartitions(boardN, min(boardN, vals), suits)
+#bs = [calcPickHasAtLeastOneOccurs(t, pickN, suits, vals) for t in ts]
+#print ts
+#print bs
+
+
+#print "simu"
+#simuP = simulate(suits, vals, boardN, pickN, 40000)
+#print simuP[0]
 
 ####### The Result #####################################
 #
@@ -279,14 +294,7 @@ print simuP[0]
 #
 ########################################################
 # without memorizing binocoeffs: took 110.651000023
-# with memo: took 72.236000061
-
-#Major optimization of limiting the sum of a good type to be at most pickN:
-#took 1.31300020218
-
-
-
-
+# took 0.5 seconds
 
 
 
