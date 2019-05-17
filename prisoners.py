@@ -77,9 +77,7 @@ def simulate(suits, vals, toTable, pickN, simuN):
 #print a
 
 """
-
 [0.003684, 0.019757, 0.057399, 0.112326, 0.166822, 0.192893, 0.178376, 0.13297, 0.080209, 0.037674, 0.013611, 0.003602, 0.000631, 4.6e-05]
-
 """
 
 
@@ -161,11 +159,7 @@ def bruteThePick(t, pickN, suits, vals):
 
 
 
-#given the board type t, get a list of all deck picking types that will
-#clear it and are possible
-#deck picking type is a vector (a1, a2,..., ar) telling how many to
-#pick of each number in the type t (notice: these can be assumed to be
-#the numbers 0..r
+
 def getGoodTypesOld(t, suits, vals, pickN):
     maxes = [suits-x for x in t]
     ret = []
@@ -181,11 +175,11 @@ def getGoodTypesOld(t, suits, vals, pickN):
 
 
 
-#how to get them efficiently
-#now permutes the ones made from partitions of tLen..pickN,
-#but that will also permute the duplicates and do a lot of needless work
-#since duplicate vectors will be ignored in the end
-#NOW using multipermu generating
+#given the board type t, get a list of all deck picking types that will
+#clear it and are possible
+#deck picking type is a vector (a1, a2,..., ar) telling how many to
+#pick of each number in the type t (notice: these can be assumed to be
+#the numbers 0..r
 def getGoodTypes(t, suits, vals, pickN):
     maxes = [suits-x for x in t]
     ret = []
@@ -225,13 +219,13 @@ def calcPickOfType(njs, t, pickN, suits, vals):
 def calcPickHasAtLeastOneOccurs(t, pickN, suits, vals):
     goodDeckTypes = getGoodTypes(t, suits, vals, pickN)
     #print "there are "+str(len(goodDeckTypes))+" good types for "+str(t)
-    gPicks = []
+    #gPicks = []
     njs = [suits-x for x in t] + [suits]*(vals-len(t))
     ret = 0
     for t2 in goodDeckTypes:
         gP = calcPickOfType(njs, t2, pickN, suits, vals)
         ret += gP
-        gPicks.append(gP)
+        #gPicks.append(gP)
     #print zip(goodDeckTypes, gPicks)
     return ret
 
@@ -244,7 +238,7 @@ def outOfSome(t, suits):
     return False
 
 
-#TODO still with second part brute
+
 #Calculate the probability of winning prisoner's solitaire
 #deck = {suits}x{vals}
 #handLen: how many cards are placed on board in phase 1
@@ -255,6 +249,7 @@ def calculateProb(suits, vals, boardN, pickN):
     b1 = binCoeff(n, boardN)
     b2 = binCoeff(n-boardN, pickN)
     bTot = b1*b2
+    if bTot==0: return Fraction(0, 1) #can't pick!
 
     aTot = 0
     for t in [t1 for t1 in ts if not outOfSome(t1, suits)]:
@@ -293,8 +288,15 @@ print "{} = {}".format(str(p), float(p))
 #   964444044208/262190765217675 = 0.00367840584853
 #
 ########################################################
-# without memorizing binocoeffs: took 110.651000023
 # took 0.5 seconds
 
+
+#now even for suits=4, vals=boardN=pickN=20
+#took 57.5
+#198779444546326135283486976/1336534591181239262569021189925 = 0.000148727497109
+#
+
+#Idea: if pickN > (suits*vals - boardN)/2, should we calculate the complementary
+#event?
 
 
