@@ -15,6 +15,13 @@ def factorial(n):
     for i in xrange(1, n+1): ret *= i
     return ret
 
+#number of m-permutations of [1..n]
+def nPr(n, r):
+    if r>n: return 0
+    ret = 1
+    for i in xrange(r): ret *= (n-i)
+    return ret
+
 #list of partitions of n to at most maxPartsN parts that are at most maxSize
 def getPartitions(n, maxPartsN, maxSize):
     if n==0: return [[]]
@@ -35,11 +42,21 @@ def typeToRemainingDeckNjs(t, suits, vals):
 
 
 def countMultiCombs(njs, k, mustHave=[]):
-    g = 1 #the generating polynomial for suotuisat
-    gAll = 1 #for all
+    g = 1 
     #it is the product
     for i in range(len(njs)):
         giCoeffs = [1]*(njs[i]+1)
+        if i in mustHave:
+            giCoeffs[0] = 0
+        g *= R(giCoeffs)
+        
+    return g[k]
+
+
+def countMultiCombsWithPickWeights(njs, k, suits, mustHave=[]):
+    g = 1
+    for i in range(len(njs)):
+        giCoeffs = [binCoeff(njs[i], j) for j in range(njs[i]+1)]
         if i in mustHave:
             giCoeffs[0] = 0
         g *= R(giCoeffs)
@@ -76,8 +93,8 @@ def probOfTypeToBoard(t, suits, vals):
 #probability for clearing all the cards on table when the ones on board form a type t, and pickN cards are picked from the remaining deck
 def probOfClearFromDeck(t, suits, vals, pickN):
     njs = typeToRemainingDeckNjs(t, suits, vals)
-    numer = countMultiCombs(njs, pickN, range(len(t)))
-    denom = countMultiCombs(njs, pickN)
+    numer = countMultiCombsWithPickWeights(njs, pickN, suits, range(len(t)))
+    denom = countMultiCombsWithPickWeights(njs, pickN, suits)
     return fractions.Fraction(int(numer), int(denom))
 
 
@@ -90,7 +107,12 @@ def calcWinProb(suits, vals, boardN, pickN):
     return sum([aProbs[i]*bProbs[i] for i in range(len(ts))])
 
 
-p = calcWinProb(4, 13, 13, 13)
+suits = 4
+vals = 13
+boardN = vals
+pickN = boardN
+
+p = calcWinProb(suits, vals, boardN, pickN)
 print str(p) + " = "+str(float(p))
 #0.00122300032504, doesn't seem right, should be 0.0037, hmm....
 
