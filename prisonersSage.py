@@ -114,16 +114,3 @@ pickN = boardN
 
 p = calcWinProb(suits, vals, boardN, pickN)
 print str(p) + " = "+str(float(p))
-#0.00122300032504, doesn't seem right, should be 0.0037, hmm....
-
-
-#p = probOfTypeToBoard([3, 2, 2, 2, 1, 1, 1, 1], 4, 13)
-#print str(p) + " = "+str(float(p))
-
-##vals = 5 #13
-##k = 7 #13
-##t = [3,2,1] #[3, 2, 2, 2, 1, 1, 1, 1]
-###njs = [4- (t[i] if i<len(t) else 0) for i in range(vals)]
-
-##print countMultiCombs(njs, k, range(len(t)))
-##print countMultiCombs(njs, k)
